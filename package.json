@@ -1,0 +1,15 @@
+{
+  "name": "matchboard",
+  "version": "1.0.0",
+  "description": "Find the job offers that best match your CV, across the main job boards.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js",
+    "check-keys": "node scripts/check-keys.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

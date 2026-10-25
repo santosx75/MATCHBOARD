@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Matchboard — Jobs that fit your CV</title>
+  <meta name="description" content="Upload your CV and find the job offers that match your skills and experience, across the main job boards.">
+  <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // Apply saved theme before paint to avoid a flash.
+    try { const t = localStorage.getItem("mb-theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Icon sprite (Lucide, ISC licence) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+      <symbol id="i-locate" viewBox="0 0 24 24"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+      <symbol id="i-sliders" viewBox="0 0 24 24"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></symbol>
+      <symbol id="i-briefcase" viewBox="0 0 24 24"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+      <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+      <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></symbol>
+      <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="backdrop" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <header class="topbar">
+    <div class="topbar-inner glass">
+      <a class="brand" href="#top" aria-label="Matchboard home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="currentColor"/><path d="M8 21V11l8 6 8-6v10" fill="none" stroke="var(--bg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Matchboard</span>
+      </a>
+      <nav class="topnav" aria-label="Main">
+        <a href="#how">How it works</a>
+        <a href="#platforms">Platforms</a>
+      </nav>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch to dark mode">
+        <svg class="icon icon-moon"><use href="#i-moon"/></svg>
+        <svg class="icon icon-sun"><use href="#i-sun"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- 1. Landing + upload -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <p class="eyebrow">For students &amp; young graduates</p>
+        <h1 id="hero-title">Find the jobs that fit <span class="underline">your</span> CV.</h1>
+        <p class="lede">Drop your CV. We pull offers from the main job boards, compare them with your skills and experience, and put the best matches on top.</p>
+
+        <div class="upload glass" id="upload">
+          <div class="cv-loaded" id="cv-loaded" hidden>
+            <span class="cv-ico" aria-hidden="true"><svg class="icon sm"><use href="#i-file"/></svg></span>
+            <span class="cv-info"><b id="cv-loaded-name">CV</b><small id="cv-loaded-meta"></small></span>
+            <button class="btn sm cv-remove" type="button" id="cv-remove" aria-label="Remove this CV and its results">
+              <svg class="icon sm"><use href="#i-trash"/></svg> <span>Remove</span>
+            </button>
+          </div>
+          <label class="dropzone" id="dropzone" for="cv-input">
+            <input id="cv-input" type="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" class="visually-hidden">
+            <span class="dz-icon"><svg class="icon"><use href="#i-upload"/></svg></span>
+            <span class="dz-title">Drop your CV here</span>
+            <span class="dz-sub">or <u>browse</u> · PDF, DOCX or TXT · max 10 MB</span>
+          </label>
+          <div class="upload-foot">
+            <button class="link-btn" type="button" id="paste-toggle" aria-expanded="false" aria-controls="paste-area">
+              <svg class="icon sm"><use href="#i-edit"/></svg> Paste text instead
+            </button>
+            <span class="privacy"><svg class="icon sm"><use href="#i-lock"/></svg> Your CV never leaves your browser</span>
+          </div>
+          <div class="paste" id="paste-area" hidden>
+            <label for="cv-text" class="field-label">CV text</label>
+            <textarea id="cv-text" rows="7" placeholder="Paste the content of your CV…"></textarea>
+            <button class="btn" type="button" id="paste-go">Analyse text</button>
+          </div>
+          <p class="form-error" id="upload-error" role="alert" hidden></p>
+          <div class="progress" id="upload-progress" hidden><span></span></div>
+        </div>
+      </div>
+      <canvas class="crowd" id="crowd" aria-hidden="true"></canvas>
+    </section>
+
+    <!-- 2. Profile check -->
+    <section class="section" id="profile" hidden aria-labelledby="profile-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="step">Step 2</p>
+          <h2 id="profile-title">Check your profile</h2>
+          <p class="muted">We read <strong id="cv-name">your CV</strong>. Fix anything we got wrong, then search.</p>
+        </div>
+
+        <form class="profile glass" id="profile-form" novalidate>
+          <div class="field span-2">
+            <span class="field-label" id="skills-label">Skills found <span class="count" id="skills-count">0</span></span>
+            <ul class="chips" id="skills-list" aria-labelledby="skills-label"></ul>
+            <div class="add-skill">
+              <label class="visually-hidden" for="skill-add">Add a skill</label>
+              <input id="skill-add" list="skill-options" placeholder="Add a skill (e.g. Excel, SEO, Barista)…" autocomplete="off">
+              <datalist id="skill-options"></datalist>
+              <button class="btn ghost" type="button" id="skill-add-btn"><svg class="icon sm"><use href="#i-plus"/></svg> Add</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="role">Target role <span class="req" aria-hidden="true">*</span></label>
+            <input id="role" name="role" required placeholder="e.g. Marketing intern, Data analyst, Waiter" autocomplete="organization-title">
+            <p class="hint">Used to search the job boards. Separate several roles with commas.</p>
+            <p class="form-error" id="role-error" hidden>Enter at least one role so we know what to search.</p>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="years">Experience (years)</label>
+            <input id="years" name="years" type="number" inputmode="decimal" min="0" max="40" step="0.5" value="0">
+            <p class="hint">Estimated from the dates in your CV. Internships count.</p>
+          </div>
+
+          <div class="field span-2">
+            <label class="field-label" for="city">Where?</label>
+            <div class="input-group">
+              <svg class="icon sm lead"><use href="#i-pin"/></svg>
+              <input id="city" name="city" placeholder="City, e.g. Cergy, Paris, Lyon" autocomplete="address-level2">
+              <button class="btn ghost" type="button" id="locate-btn"><svg class="icon sm"><use href="#i-locate"/></svg> <span>Use my location</span></button>
+            </div>
+            <p class="hint" id="city-hint">Needed for the distance filter.</p>
+            <p class="form-error" id="city-error" hidden></p>
+          </div>
+
+          <div class="form-actions span-2">
+            <button class="btn primary lg" type="submit" id="search-btn">
+              <svg class="icon sm"><use href="#i-search"/></svg> <span>Find my matches</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- 3. Results -->
+    <section class="section" id="results" hidden aria-labelledby="results-title">
+      <div class="container results-layout">
+        <aside class="filters glass" id="filters" aria-label="Filters">
+          <div class="filters-head">
+            <h2 class="h3">Filters</h2>
+            <button class="link-btn" type="button" id="reset-filters">Reset</button>
+            <button class="icon-btn only-mobile" type="button" id="close-filters" aria-label="Close filters"><svg class="icon"><use href="#i-x"/></svg></button>
+          </div>
+
+          <fieldset class="filter-group">
+            <legend>Contract type</legend>
+            <div class="contract-chips" id="contract-chips"></div>
+          </fieldset>
+
+          <div class="filter-group">
+            <div class="range-head">
+              <label for="radius">Distance</label>
+              <output id="radius-out" for="radius">50 km</output>
+            </div>
+            <input type="range" id="radius" min="1" max="200" step="1" value="50" aria-describedby="radius-hint">
+            <div class="range-scale" aria-hidden="true"><span>1 km</span><span>200 km</span></div>
+            <p class="hint" id="radius-hint">From <strong id="radius-from">your location</strong></p>
+          </div>
+
+          <div class="filter-group">
+            <label class="switch"><input type="checkbox" id="opt-remote" checked><span class="track"></span> Include remote jobs</label>
+            <label class="switch"><input type="checkbox" id="opt-unknown"><span class="track"></span> Include offers without exact location</label>
+          </div>
+
+          <div class="filter-group">
+            <label for="sort" class="legend-like">Sort by</label>
+            <select id="sort">
+              <option value="match">Best match</option>
+              <option value="recent">Most recent</option>
+              <option value="distance">Closest</option>
+            </select>
+          </div>
+
+          <div class="filter-group sources">
+            <p class="legend-like">Sources</p>
+            <ul id="source-status" class="source-list"></ul>
+            <p class="hint">More French offers (Adzuna, France Travail, Jooble): add free API keys — see README.</p>
+          </div>
+          <button class="btn primary only-mobile full" type="button" id="apply-filters">Show results</button>
+        </aside>
+
+        <div class="results-main">
+          <div class="results-head">
+            <div>
+              <p class="step">Step 3</p>
+              <h2 id="results-title">Your matches</h2>
+              <p class="muted" id="results-summary" aria-live="polite"></p>
+            </div>
+            <div class="results-tools">
+              <button class="btn ghost only-mobile" type="button" id="open-filters"><svg class="icon sm"><use href="#i-sliders"/></svg> Filters <span class="badge" id="filter-badge" hidden></span></button>
+              <button class="btn ghost" type="button" id="edit-profile"><svg class="icon sm"><use href="#i-edit"/></svg> Edit profile</button>
+            </div>
+          </div>
+          <div class="job-list" id="job-list" aria-busy="false"></div>
+          <button class="btn ghost full" type="button" id="more-btn" hidden>Show more</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Platforms -->
+    <section class="section" id="platforms" aria-labelledby="platforms-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="platforms-title">Search every big platform</h2>
+          <p class="muted">LinkedIn, Indeed, Welcome to the Jungle and others don't share their offers with apps. One click opens their search, already filled with your role, city and distance.</p>
+        </div>
+        <div class="platform-grid" id="platform-grid"></div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section" id="how" aria-labelledby="how-title">
+      <div class="container">
+        <div class="section-head"><h2 id="how-title">How the match works</h2></div>
+        <ol class="how-grid">
+          <li class="glass tile"><span class="num">1</span><h3>Read your CV</h3><p>Skills, languages, tools and years of experience are detected on your device. You can fix them.</p></li>
+          <li class="glass tile"><span class="num">2</span><h3>Collect offers</h3><p>Live offers from several job boards, cleaned, de-duplicated and located on a map.</p></li>
+          <li class="glass tile"><span class="num">3</span><h3>Score each offer</h3><p>Skills overlap (45%), job title vs target role (25%), text similarity (18%), experience fit (12%).</p></li>
+          <li class="glass tile"><span class="num">4</span><h3>Best on top</h3><p>Filter by contract and distance. The highest match is always first.</p></li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p>Matchboard — made for students. Offers belong to their publishers; always apply on the original site.</p>
+      <!-- Crowd animation: Skiper UI (Skiper39, https://skiper-ui.com), based on https://codepen.io/zadvorsky/pen/xxwbBQV. Illustrations: Open Peeps. Icons: Lucide. -->
+    </div>
+  </footer>
+
+  <!-- Job detail -->
+  <dialog class="sheet" id="job-dialog" aria-labelledby="dlg-title">
+    <div class="sheet-inner glass">
+      <button class="icon-btn sheet-close" type="button" id="dlg-close" aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button>
+      <div id="dlg-body"></div>
+    </div>
+  </dialog>
+
+  <div class="scrim" id="scrim" hidden></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

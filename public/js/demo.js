@@ -1,0 +1,52 @@
+// Sample offers (fictional) used only when the user asks to try the app without live results.
+const C = {
+  paris: [48.8566, 2.3522], cergy: [49.0364, 2.0761], ladefense: [48.8918, 2.2362], versailles: [48.8049, 2.1204],
+  lyon: [45.764, 4.8357], lille: [50.6292, 3.0573], rouen: [49.4431, 1.0993], marseille: [43.2965, 5.3698],
+  beauvais: [49.4295, 2.0807], orleans: [47.9029, 1.9093], reims: [49.2583, 4.0317], nantes: [47.2184, -1.5536],
+};
+const d = (days) => new Date(Date.now() - days * 864e5).toISOString();
+const job = (i, title, company, city, contract, description, extra = {}) => ({
+  id: `sample:${i}`, source: "sample", sourceLabel: "Sample", title, company,
+  location: city[0].toUpperCase() + city.slice(1).replace("ladefense", "La Défense"),
+  country: "FR", lat: C[city][0], lon: C[city][1], remote: false, url: "#",
+  description, postedAt: d(i % 9), salary: null, contractHints: [contract], skillsHint: [], ...extra,
+});
+
+export const SAMPLE_JOBS = [
+  job(1, "Marketing Intern – Digital & Social Media (6 months)", "Maison Lumière", "paris", "internship",
+    "Join our brand team for a 6-month internship. You will run social media campaigns (Instagram, TikTok), write content, track KPIs in Google Analytics and build reports in Excel and PowerPoint. Fluent English and French. Creative, organized, team player. Convention de stage required."),
+  job(2, "Junior Financial Analyst – CDI", "Arcadia Capital", "ladefense", "CDI",
+    "Permanent position. Build financial models, valuation (DCF), budgeting and forecasting. Advanced Excel, PowerPoint, knowledge of IFRS. 0-2 years of experience. English required. Analytical mind and rigour."),
+  job(3, "Alternance – Business Developer B2B", "NovaTech SaaS", "cergy", "alternance",
+    "Contrat d'apprentissage 12-24 mois. Prospection, négociation, gestion CRM (HubSpot), suivi des grands comptes. Aisance relationnelle, autonomie, anglais professionnel."),
+  job(4, "Extra – Serveur / Serveuse événementiel (week-ends)", "Les Salons de Seine", "versailles", "extras",
+    "Extras en restauration pour nos événements le week-end. Service en salle, accueil des invités, travail en équipe. Missions ponctuelles, flexible. Première expérience appréciée, débutants acceptés."),
+  job(5, "Data Analyst Intern – Python & SQL", "Mobilis", "paris", "internship",
+    "6-month internship. Analyse data with Python (pandas) and SQL, build dashboards in Power BI, present insights to stakeholders. Statistics background. English fluent."),
+  job(6, "CDD 6 mois – Assistant(e) Chef de Produit", "Belle & Bio", "lyon", "CDD",
+    "Contrat à durée déterminée de 6 mois. Market research, suivi des lancements produits, coordination avec les agences, analyse des ventes sur Excel. Créativité, rigueur, anglais."),
+  job(7, "Job étudiant – Vendeur(se) prêt-à-porter (temps partiel 15h/semaine)", "Urban Thread", "cergy", "part time",
+    "Job étudiant compatible avec vos études. Vente en magasin, conseil client, encaissement, mise en rayon, visual merchandising. Sens du service, souriant(e)."),
+  job(8, "Summer job – Hôte/Hôtesse d'accueil (juillet-août)", "Parc des Expos Nord", "lille", "saisonnier",
+    "Emploi saisonnier pour l'été. Accueil, orientation des visiteurs, gestion des badges. Anglais apprécié, présentation soignée, ponctualité."),
+  job(9, "Consultant Junior – Strategy & Operations", "Helix Partners", "paris", "CDI",
+    "Permanent contract. Support strategy and operations projects: market research, business analysis, PowerPoint storylines, Excel modelling. 1-2 years of experience incl. internships. English and French fluent. Problem solving and presentation skills."),
+  job(10, "VIE – Supply Chain Analyst (Singapore office, based HQ Rouen first)", "Orion Logistics", "rouen", "VIE",
+    "Volontariat International en Entreprise, 18 mois. Supply chain analytics, procurement, SAP, Excel. English fluent, adaptability."),
+  job(11, "Intérim – Préparateur de commandes (mission 3 mois)", "LogiPlus", "beauvais", "MIS",
+    "Mission d'intérim de 3 mois en entrepôt. Préparation de commandes, inventaire, travail en équipe. Horaires en 2x8."),
+  job(12, "Freelance – Social Media Manager (remote possible)", "Studio Kairos", "nantes", "freelance",
+    "Freelance mission, 3 days a week. Content creation, community management, Canva and Adobe Creative Suite, Meta Ads. Portfolio required.", { remote: true }),
+  job(13, "Stage – Audit financier (janvier 2027)", "Durand & Associés", "ladefense", "stage",
+    "Stage de 6 mois en audit. Revue des comptes, contrôle interne, IFRS, Excel avancé. Rigueur, esprit d'équipe, anglais."),
+  job(14, "Barista – extras matinaux", "Café Orme", "paris", "extras",
+    "Renforts ponctuels le matin. Barista, encaissement, service client. Flexible shifts, idéal étudiant."),
+  job(15, "Product Manager Senior", "Fleetly", "paris", "CDI",
+    "Senior role. 5+ years of experience as Product Manager, agile/scrum, Jira, SQL, data-driven decisions, leadership of cross-functional squads. English."),
+  job(16, "Chargé(e) de recrutement – CDD 8 mois", "TalentWay", "orleans", "CDD",
+    "CDD 8 mois. Sourcing, entretiens, LinkedIn Recruiter, suivi ATS, relation candidats. Excellente communication, organisation."),
+  job(17, "Alternance – Contrôleur de gestion", "Groupe Vauban", "reims", "alternance",
+    "Alternance 2 ans. Contrôle de gestion, budget, reporting mensuel, Excel, Power BI, SAP. Esprit d'analyse et rigueur."),
+  job(18, "Cours particuliers – Tuteur maths/anglais (extras)", "Tutora Network", "marseille", "extras",
+    "Soutien scolaire à domicile, missions ponctuelles en soirée. Anglais, pédagogie, autonomie. Idéal étudiant."),
+];

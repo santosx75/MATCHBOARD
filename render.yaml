@@ -1,0 +1,26 @@
+# Render Blueprint: one free web service running `node server.js`.
+# Deploy: Render dashboard -> New -> Blueprint -> pick this GitHub repo.
+services:
+  - type: web
+    name: matchboard
+    runtime: node
+    plan: free
+    buildCommand: "echo no build step"
+    startCommand: node server.js
+    healthCheckPath: /api/sources
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Optional API keys: fill them in the Render dashboard (Environment tab), never in Git.
+      - key: ADZUNA_APP_ID
+        sync: false
+      - key: ADZUNA_APP_KEY
+        sync: false
+      - key: ADZUNA_COUNTRY
+        value: fr
+      - key: FRANCE_TRAVAIL_CLIENT_ID
+        sync: false
+      - key: FRANCE_TRAVAIL_CLIENT_SECRET
+        sync: false
+      - key: JOOBLE_API_KEY
+        sync: false
