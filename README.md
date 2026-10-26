@@ -71,7 +71,7 @@ public/js/contracts.js  contract type detection
 public/js/match.js   scoring
 public/js/crowd.js   landing crowd animation (port of Skiper UI "Skiper39")
 public/js/roles.js   job families: role suggestions + "does this title fit the role"
-public/js/scrollfx.js  boxes tilt in on scroll (port of Aceternity ContainerScroll)
+public/js/scrollfx.js  boxes and section titles tilt in on scroll (port of Aceternity ContainerScroll)
 react/components/ui/ original React version of Skiper39, for a future Next.js + shadcn version
 ```
 

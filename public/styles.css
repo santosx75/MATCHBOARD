@@ -365,8 +365,9 @@ input[type="range"]:disabled { opacity: 0.4; cursor: not-allowed; }
 .dlg-actions .btn { flex: 1; }
 
 /* Scroll tilt (js/scrollfx.js): boxes flatten as they scroll in. Parents give the 3D depth. */
-#profile .container, .results-main, .job-list, .platform-grid, .how-grid { perspective: 1000px; }
-.tilt { rotate: x var(--tilt-r, 0deg); scale: var(--tilt-s, 1); transform-origin: 50% 0%; }
+/* Never on .results-layout: perspective would trap the fixed mobile filter sheet. */
+#profile .container, #platforms .container, #how .container, .results-main, .job-list, .platform-grid, .how-grid { perspective: 900px; }
+.tilt { rotate: x var(--tilt-r, 0deg); scale: var(--tilt-s, 1); translate: 0 var(--tilt-y, 0px); opacity: var(--tilt-o, 1); transform-origin: 50% 100%; }
 
 
 /* Role suggestions under the "Target role" field */
