@@ -130,7 +130,11 @@
           <div class="field">
             <label class="field-label" for="role">Target role <span class="req" aria-hidden="true">*</span></label>
             <input id="role" name="role" required placeholder="e.g. Marketing intern, Data analyst, Waiter" autocomplete="organization-title">
-            <p class="hint">Used to search the job boards. Separate several roles with commas.</p>
+            <div class="role-suggest" id="role-suggest" hidden>
+              <span class="hint">From your CV:</span>
+              <div class="role-chips" id="role-chips"></div>
+            </div>
+            <p class="hint">A job title, not your degree (e.g. “Data analyst”, not “MSc student”). Separate several roles with commas.</p>
             <p class="form-error" id="role-error" hidden>Enter at least one role so we know what to search.</p>
           </div>
 
@@ -186,6 +190,7 @@
           </div>
 
           <div class="filter-group">
+            <label class="switch"><input type="checkbox" id="opt-rolefit" checked><span class="track"></span> Only offers matching my role</label>
             <label class="switch"><input type="checkbox" id="opt-remote" checked><span class="track"></span> Include remote jobs</label>
             <label class="switch"><input type="checkbox" id="opt-unknown"><span class="track"></span> Include offers without exact location</label>
           </div>
@@ -219,12 +224,14 @@
               <button class="btn ghost" type="button" id="edit-profile"><svg class="icon sm"><use href="#i-edit"/></svg> Edit profile</button>
             </div>
           </div>
+          <p class="notice" id="results-notice" hidden></p>
           <div class="job-list" id="job-list" aria-busy="false"></div>
           <button class="btn ghost full" type="button" id="more-btn" hidden>Show more</button>
         </div>
       </div>
     </section>
 
+    <div class="bottom-zone" id="bottom-zone">
     <!-- Platforms -->
     <section class="section" id="platforms" aria-labelledby="platforms-title">
       <div class="container">
@@ -243,11 +250,12 @@
         <ol class="how-grid">
           <li class="glass tile"><span class="num">1</span><h3>Read your CV</h3><p>Skills, languages, tools and years of experience are detected on your device. You can fix them.</p></li>
           <li class="glass tile"><span class="num">2</span><h3>Collect offers</h3><p>Live offers from several job boards, cleaned, de-duplicated and located on a map.</p></li>
-          <li class="glass tile"><span class="num">3</span><h3>Score each offer</h3><p>Skills overlap (45%), job title vs target role (25%), text similarity (18%), experience fit (12%).</p></li>
+          <li class="glass tile"><span class="num">3</span><h3>Score each offer</h3><p>Skills overlap (45%), job title vs target role (25%), text similarity (18%), experience fit (12%). Offers outside your field sink or are hidden.</p></li>
           <li class="glass tile"><span class="num">4</span><h3>Best on top</h3><p>Filter by contract and distance. The highest match is always first.</p></li>
         </ol>
       </div>
     </section>
+    </div>
   </main>
 
   <footer class="footer">

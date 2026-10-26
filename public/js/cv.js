@@ -1,6 +1,7 @@
 // Reads a CV file in the browser (PDF, DOCX, TXT) and extracts skills + years of experience.
 // Nothing is uploaded: parsing happens on the user's device.
 import { extractSkills, normalize } from "./skills.js";
+import { suggestRoles, cleanRole, familiesIn } from "./roles.js";
 
 const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
 const PDFJS_WORKER = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -140,10 +141,18 @@ function guessRole(text) {
 }
 
 export function parseCv(text) {
+  const skills = [...extractSkills(text)];
+  const suggestions = suggestRoles(text, skills);
+  // Prefer a real job title from the headline ("Data analyst"); otherwise the job family
+  // detected from headline + skills. A headline like "MSc student" is never used as is.
+  const headline = guessRole(text);
+  const headlineIsTitle = headline && cleanRole(headline).split(" ").length <= 4 && familiesIn(cleanRole(headline)).length === 1
+    && !/student|etudiant|master|msc|bba|mba|school|ecole/i.test(headline);
   return {
     text,
-    skills: [...extractSkills(text)],
+    skills,
     years: estimateYears(text),
-    role: guessRole(text),
+    role: headlineIsTitle ? headline : suggestions[0] || "",
+    suggestions,
   };
 }

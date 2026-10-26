@@ -1,24 +1,27 @@
 import { readCvFile, parseCv } from "./cv.js";
+import { cleanRole } from "./roles.js";
 import { SKILLS, skillByName } from "./skills.js";
 import { CONTRACTS, OTHER, CONTRACT_BY_ID } from "./contracts.js";
 import { prepareJobs, scoreJobs, distanceKm, remoteEligible } from "./match.js";
 import { platformLinks } from "./platforms.js";
 import { SAMPLE_JOBS } from "./demo.js";
 import { mountCrowd } from "./crowd.js";
+import { initScrollTilt } from "./scrollfx.js";
+import { mountBackgroundPaths } from "./bgpaths.js";
 
 const CROWD_SRC = "https://cdn.21st.dev/assets/localized/abdb8990a7bef8c2f5af3e45f0a3c969c4b0603fba8be92e81347de4ea4e1ed7.png";
 const PAGE = 25;
 const $ = (s, el = document) => el.querySelector(s);
 
 const state = {
-  profile: { text: "", fileName: "", skills: [], years: 0, role: "", city: "", place: null },
+  profile: { text: "", fileName: "", skills: [], years: 0, role: "", suggestions: [], city: "", place: null },
   prepared: null,
   scored: [],
   view: [],
   shown: PAGE,
   sources: [],
   isSample: false,
-  filters: { contracts: new Set(), radius: 50, remote: true, unknown: false, sort: "match" },
+  filters: { contracts: new Set(), radius: 50, remote: true, unknown: false, roleFit: true, sort: "match" },
 };
 
 /* ---------- Utilities ---------- */
@@ -134,7 +137,7 @@ function removeCv() {
     profileHidden: $("#profile").hidden, resultsHidden: $("#results").hidden,
     listHtml: $("#job-list").innerHTML, summary: $("#results-summary").textContent,
   };
-  Object.assign(state.profile, { text: "", fileName: "", skills: [], years: 0, role: "" });
+  Object.assign(state.profile, { text: "", fileName: "", skills: [], years: 0, role: "", suggestions: [] });
   Object.assign(state, { scored: [], prepared: null, view: [], sources: [], isSample: false, shown: PAGE });
   $("#cv-text").value = "";
   $("#job-list").innerHTML = "";
@@ -193,7 +196,8 @@ function applyCv(text, fileName) {
     text, fileName,
     skills: parsed.skills,
     years: parsed.years,
-    role: state.profile.role || parsed.role,
+    role: parsed.role || state.profile.role,
+    suggestions: parsed.suggestions,
   });
   renderProfile();
   saveProfile();
@@ -210,6 +214,16 @@ function renderProfile() {
   $("#years").value = p.years ?? 0;
   $("#city").value = p.place?.name || p.city || "";
   renderSkills();
+  renderRoleSuggestions();
+}
+
+// Job families detected in the CV, as one-click role choices.
+function renderRoleSuggestions() {
+  const list = state.profile.suggestions || [];
+  $("#role-suggest").hidden = !list.length;
+  const current = $("#role").value.trim().toLowerCase();
+  $("#role-chips").innerHTML = list.map((r) =>
+    `<button type="button" class="cchip" data-role="${esc(r)}" aria-pressed="${r.toLowerCase() === current}">${esc(r)}</button>`).join("");
 }
 
 function renderSkills() {
@@ -248,12 +262,23 @@ function initProfile() {
   $("#city").addEventListener("input", () => { state.profile.place = null; $("#city-error").hidden = true; });
   $("#role").addEventListener("blur", () => { if ($("#role").value.trim()) $("#role-error").hidden = true; });
   $("#locate-btn").addEventListener("click", locateMe);
+  $("#role-chips").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-role]");
+    if (!b) return;
+    $("#role").value = b.dataset.role;
+    state.profile.role = b.dataset.role;
+    $("#role-error").hidden = true;
+    renderRoleSuggestions();
+    renderPlatforms();
+    saveProfile();
+  });
+  $("#role").addEventListener("input", () => renderRoleSuggestions());
   $("#profile-form").addEventListener("submit", (e) => { e.preventDefault(); runSearch(); });
 }
 
 function saveProfile() {
   const p = state.profile;
-  store.set("mb-profile", { skills: p.skills, years: p.years, role: p.role, city: p.city, place: p.place, fileName: p.fileName });
+  store.set("mb-profile", { skills: p.skills, years: p.years, role: p.role, suggestions: p.suggestions, city: p.city, place: p.place, fileName: p.fileName });
 }
 
 async function locateMe() {
@@ -320,7 +345,9 @@ async function runSearch() {
     saveProfile();
     showSection("#results");
     renderSkeleton();
-    const keywords = role.split(",")[0].trim();
+    // Search the boards with the first role, without degree/contract words ("MSc", "intern"...).
+    const first = role.split(/[,/]/)[0].trim();
+    const keywords = cleanRole(first) || first;
     let data;
     try {
       const r = await fetch("/api/search", {
@@ -368,10 +395,14 @@ function loadSamples() {
 }
 
 /* ---------- Filters ---------- */
+// Below this, the offer title has nothing to do with the target role (see roles.js).
+const ROLE_FIT_MIN = 0.4;
+
 function locationFiltered() {
-  const { radius, remote, unknown } = state.filters;
+  const { radius, remote, unknown, roleFit } = state.filters;
   const hasPlace = !!state.profile.place;
   return state.scored.filter((j) => {
+    if (roleFit && j.roleFit < ROLE_FIT_MIN) return false;
     if (j.remote && !remoteEligible(j, state.profile.place)) return false;
     if (j.remote && remote && (j.distance == null || !hasPlace)) return true;
     if (!hasPlace) return remote || !j.remote;
@@ -394,10 +425,27 @@ function applyFilters() {
   state.view = list;
   renderContractChips(base);
   renderJobs();
+  renderNotice();
   const badge = $("#filter-badge");
   badge.hidden = !sel.size;
   badge.textContent = sel.size;
   store.set("mb-filters", { ...state.filters, contracts: [...sel] });
+}
+
+// Explains thin results: without France Travail / Adzuna keys, the free boards have
+// few offers in France, so a city search often finds little that fits.
+function renderNotice() {
+  const n = $("#results-notice");
+  const inFrance = state.profile.place?.country === "FR";
+  const frenchSource = state.sources.some((s) => (s.id === "francetravail" || s.id === "adzuna") && s.ok);
+  const local = state.view.filter((j) => !j.remote).length;
+  const show = !state.isSample && state.scored.length > 0 && inFrance && !frenchSource && local < 10;
+  n.hidden = !show;
+  if (show) {
+    n.textContent = `Only ${local} on-site offer${local === 1 ? "" : "s"} near ${state.profile.place.name} for this role. ` +
+      "The free job boards have few French offers: add the free France Travail and Adzuna keys to get thousands more, " +
+      "or use the big platforms below.";
+  }
 }
 
 function renderContractChips(base) {
@@ -426,11 +474,12 @@ function initFilters() {
   const saved = store.get("mb-filters", null);
   if (saved) {
     // Contract choices are per search: restoring them would silently narrow the next search.
-    const { radius, remote, unknown, sort } = saved;
-    Object.assign(state.filters, { radius: radius ?? 50, remote: remote ?? true, unknown: !!unknown, sort: sort || "match" });
+    const { radius, remote, unknown, roleFit, sort } = saved;
+    Object.assign(state.filters, { radius: radius ?? 50, remote: remote ?? true, unknown: !!unknown, roleFit: roleFit ?? true, sort: sort || "match" });
     $("#radius").value = state.filters.radius;
     $("#opt-remote").checked = state.filters.remote;
     $("#opt-unknown").checked = state.filters.unknown;
+    $("#opt-rolefit").checked = state.filters.roleFit;
     $("#sort").value = state.filters.sort;
   }
   updateRadiusUi();
@@ -448,10 +497,11 @@ function initFilters() {
   $("#radius").addEventListener("input", (e) => { state.filters.radius = Number(e.target.value); updateRadiusUi(); refilter(); renderPlatforms(); });
   $("#opt-remote").addEventListener("change", (e) => { state.filters.remote = e.target.checked; refilter(); });
   $("#opt-unknown").addEventListener("change", (e) => { state.filters.unknown = e.target.checked; refilter(); });
+  $("#opt-rolefit").addEventListener("change", (e) => { state.filters.roleFit = e.target.checked; refilter(); });
   $("#sort").addEventListener("change", (e) => { state.filters.sort = e.target.value; refilter(); });
   $("#reset-filters").addEventListener("click", () => {
-    Object.assign(state.filters, { contracts: new Set(), radius: 50, remote: true, unknown: false, sort: "match" });
-    $("#radius").value = 50; $("#opt-remote").checked = true; $("#opt-unknown").checked = false; $("#sort").value = "match";
+    Object.assign(state.filters, { contracts: new Set(), radius: 50, remote: true, unknown: false, roleFit: true, sort: "match" });
+    $("#radius").value = 50; $("#opt-remote").checked = true; $("#opt-unknown").checked = false; $("#opt-rolefit").checked = true; $("#sort").value = "match";
     updateRadiusUi();
     applyFilters();
     renderPlatforms();
@@ -525,7 +575,7 @@ function renderEmpty(kind) {
   const msgs = {
     server: ["Can't reach the job search", "The app server isn't running or you're offline. Start it with <code>node server.js</code>, or try the app with sample offers."],
     none: ["No offers found for this role", "Try a broader role (e.g. “Marketing” instead of “Junior brand marketing intern”), or try sample offers."],
-    filtered: ["No offer matches these filters", "Widen the distance, include remote jobs, or select fewer contract types."],
+    filtered: ["No offer matches these filters", "Widen the distance, include remote jobs, select fewer contract types, or turn off “Only offers matching my role”."],
   };
   const [title, body] = msgs[kind];
   $("#job-list").setAttribute("aria-busy", "false");
@@ -646,6 +696,8 @@ function boot() {
   renderPlatforms();
   $("#role").addEventListener("input", debounce(() => { state.profile.role = $("#role").value.trim(); renderPlatforms(); }, 300));
 
+  initScrollTilt();
+  mountBackgroundPaths($("#bottom-zone"));
   const start = () => mountCrowd($("#crowd"), { src: CROWD_SRC, rows: 15, cols: 7 });
   if (window.gsap) start(); else window.addEventListener("load", start, { once: true });
 }

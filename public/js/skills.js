@@ -150,6 +150,7 @@ const RAW = [
 ];
 
 const SOFT = new Set(["Soft skills"]);
+const GENERIC = new Set(["Excel", "PowerPoint", "Microsoft Office", "Google Workspace", "Notion", "Data entry"]);
 
 export function normalize(text) {
   return String(text || "")
@@ -172,7 +173,8 @@ const SKIP = new Set(["node", "make", "word", "stock", "server", "manager", "sec
 export const SKILLS = RAW.map(([name, category, ...aliases]) => ({
   name,
   category,
-  weight: SOFT.has(category) ? 0.4 : category === "Languages" ? 0.7 : 1,
+  // Skills almost every candidate lists count less, so they cannot carry an unrelated offer.
+  weight: SOFT.has(category) ? 0.25 : category === "Languages" ? 0.35 : GENERIC.has(name) ? 0.4 : 1,
   patterns: aliases.filter((a) => !SKIP.has(a)).map((a) => {
     const acronym = ACRONYMS.has(a);
     const body = escapeRe(acronym ? a.toUpperCase() : a).replace(/\s+/g, "[\\s\\-_]+");

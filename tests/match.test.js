@@ -93,3 +93,32 @@ test("server helpers", () => {
   assert.equal(htmlToText("&lt;p&gt;Hello &amp;amp; welcome&lt;/p&gt;"), "Hello & welcome");
   assert.equal(htmlToText("<ul><li>One</li><li>Two</li></ul>"), "• One\n• Two");
 });
+
+import { cleanRole, suggestRoles, titleRelevance } from "../public/js/roles.js";
+
+test("role from CV headline is a job, not a degree", () => {
+  assert.equal(parseCv("Lucas\nMSc Data Science student | Business School\nPython SQL Power BI Tableau statistics").role, "Data analyst");
+  assert.equal(parseCv("Tom\nEtudiant\nServeur, barista, service en salle, accueil").role, "Waiter / Barista");
+  assert.equal(cleanRole("Master in Finance student — Corporate Finance"), "finance corporate finance");
+  assert.deepEqual(suggestRoles("Ana\nSoftware engineer", ["React", "Node.js", "Git"]), ["Software developer"]);
+});
+
+test("offer titles outside the target role are judged unrelated", () => {
+  assert.ok(titleRelevance("Growth Marketing Manager", "Marketing") >= 0.8);
+  assert.ok(titleRelevance("Junior Data Analyst", "Data analyst") >= 0.8);
+  assert.ok(titleRelevance("Senior Data Analyst", "Finance analyst") < 0.4, "generic 'analyst' alone is not enough");
+  assert.ok(titleRelevance("AI Trainer - Video Annotation", "Data analyst") < 0.4);
+  assert.ok(titleRelevance("Serveur / Serveuse", "Waiter / Barista") >= 0.8);
+  assert.equal(titleRelevance("Anything", ""), 1);
+});
+
+test("unrelated offers sink below related ones even with shared generic skills", () => {
+  const profile = { text: "Data analyst. SQL Python Power BI Excel English French teamwork", skills: ["SQL", "Python", "Power BI", "Excel", "English", "French", "Teamwork"], years: 1, role: "Data analyst" };
+  const jobs = [
+    { id: "a", title: "Office assistant", description: "Excel, English, French, teamwork, organisation.", contractHints: [], skillsHint: [] },
+    { id: "b", title: "Junior Data Analyst", description: "SQL and Power BI dashboards.", contractHints: [], skillsHint: [] },
+  ];
+  const [a, b] = scoreJobs(prepareJobs(jobs), profile);
+  assert.ok(b.score > a.score + 20, `related ${b.score} vs unrelated ${a.score}`);
+  assert.ok(a.roleFit < 0.4 && b.roleFit >= 0.8);
+});

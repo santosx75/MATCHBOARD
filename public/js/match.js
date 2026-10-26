@@ -1,5 +1,6 @@
 import { extractSkills, normalize, skillByName } from "./skills.js";
 import { classifyContracts } from "./contracts.js";
+import { cleanRole, titleRelevance } from "./roles.js";
 
 const STOP = new Set(`a an the and or of to in on for with at by from as is are be this that we you our your will can it its they their not but if into about over per via
 le la les un une des du de d l et ou en au aux pour par sur dans avec sans ce cette ces vous nous notre votre vos nos est sont etre sera qui que quoi dont ou plus tres tout tous toute toutes son sa ses leur leurs
@@ -90,10 +91,13 @@ export function prepareJobs(rawJobs) {
 export function scoreJobs({ jobs, idf }, profile) {
   const cvSkills = new Set(profile.skills);
   const cvTf = termFreq(tokenize(`${profile.text || ""}\n${[...cvSkills].join(" ")}\n${profile.role || ""}`));
-  const roles = String(profile.role || "")
+  // Several roles can be given ("Marketing, Sales / Business developer"); words like
+  // "student", "MSc", "intern" are dropped: they describe the person or contract, not the job.
+  const roleStrings = String(profile.role || "")
     .split(/[,;/]| or | ou /i)
-    .map((r) => tokenize(r))
-    .filter((r) => r.length);
+    .map((r) => cleanRole(r))
+    .filter(Boolean);
+  const roles = roleStrings.map((r) => tokenize(r)).filter((r) => r.length);
   const cvYears = Number(profile.years) || 0;
 
   return jobs.map((job) => {
@@ -109,12 +113,10 @@ export function scoreJobs({ jobs, idf }, profile) {
     const depth = Math.min(1, matched.length / 5);
     const skillScore = need ? 0.7 * coverage + 0.3 * depth : null;
 
-    // 2. Title: how well the job title matches the target role(s).
+    // 2. Title: how well the job title matches the target role(s): same words (with synonyms)
+    //    or same job family ("Growth Manager" fits "Marketing").
     let titleScore = 0;
-    for (const r of roles) {
-      const hit = r.filter((t) => job.titleTokens.has(t)).length / r.length;
-      titleScore = Math.max(titleScore, hit);
-    }
+    for (const raw of roleStrings) titleScore = Math.max(titleScore, titleRelevance(job.title, raw));
     if (!roles.length) {
       const cvTop = [...cvSkills].flatMap((s) => tokenize(s));
       titleScore = cvTop.some((t) => job.titleTokens.has(t)) ? 0.6 : 0;
@@ -132,12 +134,16 @@ export function scoreJobs({ jobs, idf }, profile) {
     const parts = skillScore == null
       ? [[titleScore, 0.35], [textScore, 0.5], [expScore, 0.15]]
       : [[skillScore, 0.45], [titleScore, 0.25], [textScore, 0.18], [expScore, 0.12]];
-    // A big experience gap also scales the whole score down, so senior roles sink for juniors.
-    const total = parts.reduce((s, [v, w]) => s + v * w, 0) * (0.7 + 0.3 * expScore);
+    // A big experience gap scales the whole score down, so senior roles sink for juniors.
+    // An offer whose title has nothing to do with the target role is also scaled down hard:
+    // shared generic skills (English, Excel...) must not push it to the top.
+    const roleGate = roles.length ? 0.3 + 0.7 * titleScore : 1;
+    const total = parts.reduce((s, [v, w]) => s + v * w, 0) * (0.7 + 0.3 * expScore) * roleGate;
 
     return {
       ...job,
       score: Math.round(Math.min(1, total) * 100),
+      roleFit: roles.length ? titleScore : 1,
       breakdown: {
         skills: skillScore == null ? null : Math.round(skillScore * 100),
         title: Math.round(titleScore * 100),

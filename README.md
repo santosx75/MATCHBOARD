@@ -40,13 +40,21 @@ filled in.
 ## How the score works (0–100)
 
 1. **Skills (45%)**: share of the skills the offer asks for that are in your profile (about 150 skills,
-   in English, French and German: business, finance, marketing, data, tech, hospitality, languages, soft skills).
-2. **Job title (25%)**: how well the offer title matches your target role (with synonyms: stage = internship…).
+   in English, French and German). Skills almost everyone lists (languages, Excel, soft skills) count less.
+2. **Job title (25%)**: how well the offer title fits your target role — same words, or the same job family
+   (15 families in `public/js/roles.js`: marketing, data, software, sales, finance, consulting, HR, hospitality…).
+   Generic words like "analyst" or "manager" count less than field words like "finance".
 3. **Text match (18%)**: TF-IDF similarity between your CV and the full offer.
-4. **Experience (12%)**: years asked in the offer vs years found in your CV. A big gap also lowers the whole score,
-   so senior roles sink for students.
+4. **Experience (12%)**: years asked in the offer vs years found in your CV.
 
-Remote offers restricted to other countries (e.g. "US only") are hidden.
+Two multipliers then apply: a big experience gap lowers the whole score (senior roles sink for students), and so
+does a title outside your field. With **Only offers matching my role** (on by default) those offers are hidden.
+
+The target role is pre-filled from the CV as a job title ("Data analyst"), never as a degree ("MSc student"),
+with up to 3 one-click suggestions. Remote offers restricted to other countries (e.g. "US only") are hidden.
+
+**Measuring quality:** with the server running, `npm run eval` searches 5 roles and counts how many of the top 10
+titles really belong to the role (`REALISTIC=1 npm run eval` uses the CV-guessed role and a 50 km radius around Paris).
 
 ## Project layout
 
@@ -62,6 +70,9 @@ public/js/skills.js  skills dictionary
 public/js/contracts.js  contract type detection
 public/js/match.js   scoring
 public/js/crowd.js   landing crowd animation (port of Skiper UI "Skiper39")
+public/js/roles.js   job families: role suggestions + "does this title fit the role"
+public/js/scrollfx.js  boxes tilt in on scroll (port of Aceternity ContainerScroll)
+public/js/bgpaths.js animated lines behind the bottom sections (port of BackgroundPaths)
 react/components/ui/ original React version of Skiper39, for a future Next.js + shadcn version
 ```
 
