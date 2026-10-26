@@ -368,15 +368,6 @@ input[type="range"]:disabled { opacity: 0.4; cursor: not-allowed; }
 #profile .container, .results-main, .job-list, .platform-grid, .how-grid { perspective: 1000px; }
 .tilt { rotate: x var(--tilt-r, 0deg); scale: var(--tilt-s, 1); transform-origin: 50% 0%; }
 
-/* Background paths behind the bottom sections (js/bgpaths.js) */
-.bottom-zone { position: relative; isolation: isolate; overflow: hidden; }
-.paths-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; color: var(--fg); }
-.paths-bg svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.paths-bg path { fill: none; stroke: currentColor; stroke-dasharray: 0.55 0.45; animation: path-flow var(--d, 24s) linear infinite, path-fade var(--d, 24s) linear infinite; }
-.paths-bg.is-paused path { animation-play-state: paused; }
-@keyframes path-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -2; } }
-@keyframes path-fade { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.6; } }
-@media (prefers-reduced-motion: reduce) { .paths-bg path { animation: none; opacity: 0.4; } }
 
 /* Role suggestions under the "Target role" field */
 .role-suggest { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }

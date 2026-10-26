@@ -7,7 +7,6 @@ import { platformLinks } from "./platforms.js";
 import { SAMPLE_JOBS } from "./demo.js";
 import { mountCrowd } from "./crowd.js";
 import { initScrollTilt } from "./scrollfx.js";
-import { mountBackgroundPaths } from "./bgpaths.js";
 
 const CROWD_SRC = "https://cdn.21st.dev/assets/localized/abdb8990a7bef8c2f5af3e45f0a3c969c4b0603fba8be92e81347de4ea4e1ed7.png";
 const PAGE = 25;
@@ -697,7 +696,6 @@ function boot() {
   $("#role").addEventListener("input", debounce(() => { state.profile.role = $("#role").value.trim(); renderPlatforms(); }, 300));
 
   initScrollTilt();
-  mountBackgroundPaths($("#bottom-zone"));
   const start = () => mountCrowd($("#crowd"), { src: CROWD_SRC, rows: 15, cols: 7 });
   if (window.gsap) start(); else window.addEventListener("load", start, { once: true });
 }
