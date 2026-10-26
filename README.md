@@ -33,9 +33,9 @@ Then open http://localhost:3000. Run the tests with `npm test`.
 Copy `.env.example` to `.env` and paste the keys you get. For a school in France, **France Travail + Adzuna**
 make the biggest difference.
 
-LinkedIn, Indeed, Welcome to the Jungle, HelloWork, JobTeaser, APEC, Glassdoor, StudentJob, StaffMe, Side and
-Brigad don't offer a public API (and forbid scraping). The "Search every big platform" section opens their own
-search with the role, city, distance and contract already filled in.
+LinkedIn, Indeed and Welcome to the Jungle have no public API (and forbid scraping). The "Search every big platform"
+section links to them and to the France Travail website, with the role, city, distance and contract already
+filled in.
 
 ## How the score works (0–100)
 
